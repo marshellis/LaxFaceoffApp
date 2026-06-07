@@ -48,7 +48,8 @@
     "react-native-screens": "~4.16.0",
     "react-native-web": "^0.21.2",
     "typescript": "~5.9.2",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.14",
+    "expo-dev-client": "~6.0.21"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
