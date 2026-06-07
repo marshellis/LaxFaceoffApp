@@ -16,6 +16,37 @@ export interface HistorySummary {
   currentStreakDays: number;
 }
 
+export interface DayBucket {
+  date: string; // YYYY-MM-DD
+  count: number;
+}
+
+/**
+ * Last `days` days ending at `now` (oldest first), each with its session count from byDay.
+ * Days with no entry in byDay receive count 0.
+ *
+ * @param byDay - Map of YYYY-MM-DD to session count (from summarizeHistory).
+ * @param days  - Number of days to include (including today).
+ * @param now   - Optional reference timestamp (Unix ms). Defaults to Date.now().
+ */
+export function dailySeries(
+  byDay: Record<string, number>,
+  days: number,
+  now: number = Date.now(),
+): DayBucket[] {
+  // Anchor to start of today in local time so arithmetic stays in whole days.
+  const anchor = new Date(now);
+  anchor.setHours(0, 0, 0, 0);
+
+  const buckets: DayBucket[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(anchor.getTime() - i * 24 * 60 * 60 * 1000);
+    const key = toDateKey(d.getTime());
+    buckets.push({ date: key, count: byDay[key] ?? 0 });
+  }
+  return buckets;
+}
+
 /** Format a Unix-ms timestamp to YYYY-MM-DD in local time. */
 function toDateKey(ts: number): string {
   const d = new Date(ts);
