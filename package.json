@@ -10,7 +10,14 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest",
+    "publish:doctor": "bash scripts/publish/doctor.sh",
+    "build:dev": "npx eas-cli build --profile development",
+    "build:preview": "npx eas-cli build --profile preview",
+    "build:prod": "npx eas-cli build --profile production",
+    "submit:ios": "npx eas-cli submit --profile production --platform ios",
+    "submit:android": "npx eas-cli submit --profile production --platform android",
+    "ota": "npx eas-cli update"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
