@@ -1,0 +1,54 @@
+name: Publish (EAS)
+
+# Cloud build/submit from CI so nobody needs signing keys on their laptop.
+# Keys live as GitHub repo secrets:
+#   EXPO_TOKEN            (required) — Expo access token (expo.dev → Account settings → Access tokens)
+#   For store submission (optional, when you wire up `eas submit`):
+#   EXPO_APPLE_* / ASC API key, and a Google Play service-account JSON, configured via `eas credentials`.
+#
+# Triggers:
+#   - Manual: Actions tab → "Publish (EAS)" → Run workflow (pick profile + platform).
+#   - Tag push `v*` → a production build (e.g. `git tag v1.0.1 && git push --tags`).
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: EAS build profile
+        type: choice
+        default: preview
+        options: [development, preview, production]
+      platform:
+        description: Platform
+        type: choice
+        default: all
+        options: [android, ios, all]
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Gate so the build doesn't ship broken code.
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: EAS build
+        env:
+          PROFILE: ${{ github.event.inputs.profile || 'production' }}
+          PLATFORM: ${{ github.event.inputs.platform || 'all' }}
+        run: eas build --profile "$PROFILE" --platform "$PLATFORM" --non-interactive --no-wait
+      # To auto-submit production to the stores, add (after configuring store creds via `eas credentials`):
+      #   - name: EAS submit
+      #     if: startsWith(github.ref, 'refs/tags/v')
+      #     run: eas submit --profile production --platform all --non-interactive
