@@ -55,7 +55,9 @@
       }
     },
     "owner": "jljackson222",
+    "scheme": "laxfaceoff",
     "plugins": [
+      "expo-router",
       "expo-font",
       "expo-audio"
     ]
