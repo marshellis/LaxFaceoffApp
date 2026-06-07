@@ -1,0 +1,25 @@
+# Practice happy path: pick a drill and start a session.
+# Uses Rapid Clamp (the simplest drill — just whistles, no TTS) so the flow is fast and stable.
+#   scripts/mobile/run-flows.sh android maestro/flows/practice-happy-path.yaml
+appId: com.jljackson222.lacrossefaceofftrainer
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "tab-practice"
+- assertVisible:
+    id: "practice-selection"
+- tapOn:
+    id: "select-rapidClamp"
+# START is disabled until the audio engine has loaded its buffers; wait for it, then tap.
+- extendedWaitUntil:
+    visible:
+      id: "start-practice-button"
+    timeout: 15000
+- tapOn:
+    id: "start-practice-button"
+- assertVisible:
+    id: "practice-running"
+- takeScreenshot: practice-running
+- tapOn:
+    id: "stop-practice-button"

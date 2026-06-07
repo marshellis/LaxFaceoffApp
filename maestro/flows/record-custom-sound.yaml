@@ -1,0 +1,20 @@
+# Navigate to the custom-sound recorder. (Actually recording audio needs a mic + human ears,
+# so this flow verifies the path reaches the recorder; do the record/preview/save by hand.)
+#   scripts/mobile/run-flows.sh ios maestro/flows/record-custom-sound.yaml
+appId: com.jljackson222.lacrossefaceofftrainer
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "tab-settings"
+- assertVisible:
+    id: "settings-screen"
+- tapOn:
+    id: "settings-audio"
+- assertVisible:
+    id: "settings-audio-screen"
+- tapOn:
+    id: "audio-whistle-record"
+- assertVisible:
+    id: "record-screen"
+- takeScreenshot: recorder-open

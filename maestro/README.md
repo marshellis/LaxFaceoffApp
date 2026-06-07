@@ -29,6 +29,16 @@ Screenshots and the on-screen element tree for every step (success **and** failu
 `maestro/artifacts/<platform>-<timestamp>/`. When a test fails, read the latest screenshot and the
 `.json` hierarchy there — it shows whether it was the *wrong selector* or the *wrong screen*.
 
+## Flows in this repo
+
+- `smoke.yaml` — launch + Home renders (the minimal check).
+- `navigation.yaml` — every tab renders its screen.
+- `practice-happy-path.yaml` — pick Rapid Clamp, start a session, see it running.
+- `record-custom-sound.yaml` — reach the custom-sound recorder (record/preview/save by hand).
+
+Run one: `scripts/mobile/run-flows.sh android maestro/flows/practice-happy-path.yaml`
+Run all: `scripts/mobile/run-flows.sh ios`
+
 ## The one rule for writing flows: `testID`
 
 A flow finds a button or text by its **`testID`**. In the app code, put a `testID` on anything a test
