@@ -54,8 +54,9 @@ scripts/publish/update.sh production "fix: faster whistle"
 # npm run ota -- --branch production --message "..."
 ```
 This ships instantly to installed apps **on a matching runtime**. `runtimeVersion` uses the
-**`fingerprint` policy** (app.json), so EAS only delivers an update to builds whose native fingerprint
-matches — if you changed native deps, build + submit a new binary instead of OTA.
+**`appVersion` policy** (app.json), so the runtime is the app's `version` and OTA updates only reach
+builds with the same version. **Bump `version` in app.json whenever you change native deps** (then
+build + submit a new binary), so an OTA can't land on an incompatible native build.
 
 ## Typical release flow
 1. `npm test && npm run typecheck && npm run lint` — green.
