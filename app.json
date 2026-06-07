@@ -30,7 +30,6 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.jljackson222.lacrossefaceofftrainer",
-      "versionCode": 1,
       "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"]
     },
     "web": {
