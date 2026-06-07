@@ -6,6 +6,9 @@
 # Usage: scripts/mobile/doctor.sh
 set -uo pipefail
 
+# Auto-discover JAVA_HOME / ANDROID_HOME (Homebrew openjdk is keg-only; Android Studio ships a JBR).
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_env.sh"
+
 ok=0
 fail=0
 pass() { echo "✅ $1"; }

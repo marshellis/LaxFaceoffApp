@@ -4,6 +4,8 @@
 #   AVD_NAME defaults to $ANDROID_AVD, else the first AVD found.
 set -euo pipefail
 
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_env.sh"
+
 if ! command -v emulator >/dev/null 2>&1; then
   echo "❌ 'emulator' not found. Install Android Studio + SDK and add \$ANDROID_HOME/emulator to PATH."
   echo "   See the mobile-test-setup skill."

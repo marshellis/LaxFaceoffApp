@@ -12,7 +12,7 @@ set -euo pipefail
 
 PLATFORM="${1:-}"
 FLOW="${2:-maestro/flows}"
-export PATH="$HOME/.maestro/bin:$PATH"
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_env.sh"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
