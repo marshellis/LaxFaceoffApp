@@ -1,7 +1,7 @@
-import { AudioContext } from 'react-native-audio-api';
+import { type AudioBuffer, AudioContext } from 'react-native-audio-api';
 import type { CueKind, ScheduledCue } from '../practice/types';
 
-type Buffers = Partial<Record<CueKind, unknown>>;
+type Buffers = Partial<Record<CueKind, AudioBuffer>>;
 
 export class AudioEngine {
   private ctx: AudioContext;
@@ -26,7 +26,7 @@ export class AudioEngine {
       const buffer = this.buffers[cue.kind];
       if (!buffer) continue;
       const node = this.ctx.createBufferSource();
-      node.buffer = buffer as never;
+      node.buffer = buffer;
       node.connect(this.ctx.destination);
       node.start(t0 + cue.at);
       this.scheduled.push({ stop: () => node.stop() });

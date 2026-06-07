@@ -1,15 +1,95 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { CueKind } from '../practice/types';
-import { useSettingsStore } from '../state/settingsStore';
+import { type CustomSounds, useSettingsStore } from '../state/settingsStore';
 import { AudioEngine } from './AudioEngine';
 import { toArrayBuffer } from './loadAsset';
 import { configurePlaybackSession } from './session';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const WHISTLE_ASSET = require('../../assets/sounds/whistle.mp3') as number;
+// Bundled default cue assets. Each is pre-rendered audio so Down/Set/Whistle
+// all play on the audio clock (no JS-thread setTimeout / TTS in the timing path).
+/* eslint-disable @typescript-eslint/no-require-imports */
+const DEFAULT_ASSETS: Record<CueKind, number> = {
+  down: require('../../assets/sounds/down.wav') as number,
+  set: require('../../assets/sounds/set.wav') as number,
+  whistle: require('../../assets/sounds/whistle.mp3') as number,
+};
+/* eslint-enable @typescript-eslint/no-require-imports */
+
+const CUE_KINDS: CueKind[] = ['down', 'set', 'whistle'];
+
+// ---------------------------------------------------------------------------
+// Module-level singleton: ONE AudioEngine, ONE AudioContext, ONE set of decoded
+// buffers shared by every caller of useAudioEngine(). Lives here (not in a
+// per-component ref) so navigating between screens reuses the same engine.
+// ---------------------------------------------------------------------------
+let sharedEngine: AudioEngine | null = null;
+let sessionConfigured = false;
+let loadPromise: Promise<void> | null = null;
+// Bumped whenever buffers finish (re)loading so subscribed hooks re-render.
+let loadVersion = 0;
+let lastLoadedSounds: CustomSounds | null = null;
+const readyListeners = new Set<() => void>();
+
+function notifyReady(): void {
+  loadVersion += 1;
+  for (const l of readyListeners) l();
+}
+
+/** Create the engine + configure the playback session exactly once. */
+async function ensureEngine(): Promise<AudioEngine> {
+  if (!sharedEngine) {
+    sharedEngine = new AudioEngine();
+  }
+  if (!sessionConfigured) {
+    sessionConfigured = true;
+    try {
+      await configurePlaybackSession();
+    } catch (err) {
+      console.error('[useAudioEngine] Failed to configure playback session:', err);
+    }
+  }
+  return sharedEngine;
+}
+
+/**
+ * Load (or reload) every default cue buffer into the shared engine. A custom URI
+ * in settingsStore.customSounds[kind] OVERRIDES the corresponding bundled default.
+ * Guards against concurrent/double init by reusing the in-flight promise.
+ */
+function loadBuffers(force = false): Promise<void> {
+  if (loadPromise && !force) return loadPromise;
+
+  const sounds = useSettingsStore.getState().customSounds;
+
+  loadPromise = (async () => {
+    try {
+      const engine = await ensureEngine();
+
+      const sources = await Promise.all(
+        CUE_KINDS.map(async (kind) => {
+          // Custom URI overrides the bundled default for this cue.
+          const source: number | string = sounds[kind] ?? DEFAULT_ASSETS[kind];
+          return { kind, arrayBuffer: await toArrayBuffer(source) };
+        }),
+      );
+
+      await engine.load(sources);
+      lastLoadedSounds = sounds;
+      notifyReady();
+    } catch (err) {
+      console.error('[useAudioEngine] Failed to load audio buffers:', err);
+      // Leave ready=false; the app can surface a graceful error state.
+      throw err;
+    } finally {
+      loadPromise = null;
+    }
+  })();
+
+  return loadPromise;
+}
 
 export interface UseAudioEngineResult {
-  /** The underlying AudioEngine instance (null before first load). */
+  /** The shared AudioEngine instance (null before first creation). */
   engine: AudioEngine | null;
   /** True once all cue buffers have been loaded successfully. */
   ready: boolean;
@@ -20,86 +100,55 @@ export interface UseAudioEngineResult {
   reload: () => Promise<void>;
   /**
    * Passthrough to engine.resume(). Call inside a user-gesture handler on web
-   * to satisfy autoplay policy. No-op when engine is not yet created.
+   * to satisfy autoplay policy.
    */
   resume: () => Promise<void>;
 }
 
 export function useAudioEngine(): UseAudioEngineResult {
-  const engineRef = useRef<AudioEngine | null>(null);
-  const initedRef = useRef(false);
-  const loadingRef = useRef(false);
-
-  const [ready, setReady] = useState(false);
-
+  // Re-render whenever the shared buffers finish loading.
+  const [, setTick] = useState(loadVersion);
   const customSounds = useSettingsStore((s) => s.customSounds);
-  // Keep a ref so the load callback always sees the latest URIs without needing
-  // to be part of the dependency array (avoids reload loops).
-  const customSoundsRef = useRef(customSounds);
-  customSoundsRef.current = customSounds;
 
-  const loadBuffers = useCallback(async (): Promise<void> => {
-    if (loadingRef.current) return;
-    loadingRef.current = true;
-    setReady(false);
-
-    try {
-      const engine = engineRef.current;
-      if (!engine) return;
-
-      const sounds = customSoundsRef.current;
-      const sources: { kind: CueKind; arrayBuffer: ArrayBuffer }[] = [];
-
-      // Whistle: custom URI overrides the bundled default.
-      const whistleSource: number | string = sounds.whistle ?? WHISTLE_ASSET;
-      sources.push({ kind: 'whistle', arrayBuffer: await toArrayBuffer(whistleSource) });
-
-      // Down / Set: only load when a custom URI is configured (no bundled default).
-      if (sounds.down) {
-        sources.push({ kind: 'down', arrayBuffer: await toArrayBuffer(sounds.down) });
-      }
-      if (sounds.set) {
-        sources.push({ kind: 'set', arrayBuffer: await toArrayBuffer(sounds.set) });
-      }
-
-      await engine.load(sources);
-      setReady(true);
-    } catch (err) {
-      console.error('[useAudioEngine] Failed to load audio buffers:', err);
-      // Leave ready=false; the app can surface a graceful error state.
-    } finally {
-      loadingRef.current = false;
-    }
-  }, []); // no deps — reads from refs
-
-  // One-time init: create engine, configure session, load buffers.
+  // Subscribe to ready notifications from the module singleton.
   useEffect(() => {
-    if (initedRef.current) return;
-    initedRef.current = true;
+    const onReady = () => setTick(loadVersion);
+    readyListeners.add(onReady);
+    return () => {
+      readyListeners.delete(onReady);
+    };
+  }, []);
 
-    (async () => {
-      try {
-        engineRef.current = new AudioEngine();
-        await configurePlaybackSession();
-      } catch (err) {
-        console.error('[useAudioEngine] Failed to create AudioEngine or configure session:', err);
-        return;
-      }
-      await loadBuffers();
-    })();
-  }, [loadBuffers]);
+  // Kick off the initial load once (idempotent at module scope).
+  useEffect(() => {
+    void loadBuffers().catch(() => {
+      /* error already logged; ready stays false */
+    });
+  }, []);
+
+  // I4: reload buffers when customSounds changes so a freshly recorded sound is
+  // used without an app restart, even on an already-mounted screen.
+  useEffect(() => {
+    if (lastLoadedSounds === null) return; // initial load handles first paint
+    if (lastLoadedSounds === customSounds) return; // unchanged reference
+    void loadBuffers(true).catch(() => {
+      /* error already logged */
+    });
+  }, [customSounds]);
 
   const reload = useCallback(async (): Promise<void> => {
-    await loadBuffers();
-  }, [loadBuffers]);
+    await loadBuffers(true);
+  }, []);
 
   const resume = useCallback(async (): Promise<void> => {
     try {
-      await engineRef.current?.resume();
+      await sharedEngine?.resume();
     } catch (err) {
       console.error('[useAudioEngine] resume() failed:', err);
     }
   }, []);
 
-  return { engine: engineRef.current, ready, reload, resume };
+  const ready = lastLoadedSounds !== null;
+
+  return { engine: sharedEngine, ready, reload, resume };
 }

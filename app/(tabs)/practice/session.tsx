@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import * as Speech from 'expo-speech';
 import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -13,16 +12,8 @@ import { useHistoryStore } from '../../../src/state/historyStore';
 import { getCurrentConfig, useSettingsStore } from '../../../src/state/settingsStore';
 import { Colors } from '../../../src/theme/colors';
 
-/** Map a runner label to its cue kind. */
-function labelToKind(label: string): 'down' | 'set' | 'whistle' {
-  if (label === 'Down!') return 'down';
-  if (label === 'Set!') return 'set';
-  return 'whistle';
-}
-
 export default function PracticeScreen() {
   const config = useSettingsStore(getCurrentConfig);
-  const customSounds = useSettingsStore((s) => s.customSounds);
   const addSession = useHistoryStore((s) => s.addSession);
   const router = useRouter();
 
@@ -67,16 +58,9 @@ export default function PracticeScreen() {
       setRep(state.rep);
       setLabel(state.label);
 
-      // TTS for down/set cues that have no custom audio buffer
-      if (state.label) {
-        const kind = labelToKind(state.label);
-        if (kind === 'down' && !customSounds.down) {
-          Speech.speak('Down');
-        } else if (kind === 'set' && !customSounds.set) {
-          Speech.speak('Set');
-        }
-        // whistle and all other labels (GO!, CLAMP!, PULL!, POP!) are handled by the engine
-      }
+      // All cues (Down / Set / Whistle, plus GO!, CLAMP!, PULL!, POP!) are played
+      // by the engine on the audio clock. The runner's setTimeout drives only the
+      // VISUAL label updates above — never the timing-critical audio.
 
       if (state.phase === 'complete') {
         const durationSec = Math.round((Date.now() - startTimeRef.current) / 1000);
