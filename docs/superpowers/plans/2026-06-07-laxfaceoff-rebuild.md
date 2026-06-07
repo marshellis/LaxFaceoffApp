@@ -94,42 +94,93 @@ So contributors without any Claude plugins (e.g. a 12-year-old on his own Mac) c
 
 **Outcome:** a fresh, typed, lint-gated Expo Router app that boots to an empty tab shell on a dev build, with CI green.
 
-### Task 1: Scaffold the TypeScript Expo Router app
+### Task 1: Convert the existing app to a TypeScript + Expo Router skeleton (in-place)
+
+The repo is already a valid Expo SDK 54 app with working EAS config, the
+`com.jljackson222.lacrossefaceofftrainer` bundle id (the Maestro smoke flow depends on it), and
+the assets. So we transform in place rather than scaffolding fresh — preserving all of that.
 
 **Files:**
-- Create: whole new app skeleton (run in a scratch dir, then merge — see Step 1)
+- Move: `App.js`, `src/` → `legacy/` (porting reference only; never imported by new code)
+- Create: `tsconfig.json`, `app/_layout.tsx`, `app/(tabs)/_layout.tsx`, `app/(tabs)/index.tsx`
+- Modify: `package.json` (`main` → `expo-router/entry`), `index.js` (delete — Expo Router provides the entry)
 
-- [ ] **Step 1: Create the app in a scratch directory**
+- [ ] **Step 1: Move legacy code aside (keep as porting reference)**
 
-The current repo has app code at the root. Scaffold fresh, then port. Run:
 ```bash
-cd /tmp
-npx create-expo-app@latest lax-rebuild --template default
-# 'default' template ships TypeScript + Expo Router + the (tabs) layout
+mkdir -p legacy
+git mv App.js legacy/App.js
+git mv src legacy/src
+git mv index.js legacy/index.js
 ```
-Expected: `/tmp/lax-rebuild` with `app/`, `tsconfig.json`, `package.json` (Expo SDK 54+).
+`legacy/` is the behavioral source-of-truth for Phases 3–4. New code never imports from it.
 
-- [ ] **Step 2: Verify it boots on web (fastest check)**
+- [ ] **Step 2: Install TypeScript + Expo Router**
 
 ```bash
-cd /tmp/lax-rebuild && npx expo start --web
+npx expo install expo-router typescript @types/react
 ```
-Expected: a browser tab opens showing the default tab app. Ctrl-C to stop.
 
-- [ ] **Step 3: Copy the scaffold into the repo on a clean branch**
+- [ ] **Step 3: Point the entry at Expo Router**
 
-From the repo root (`/Users/acedimagi/emdash/worktrees/LaxFaceoffApp/emdash/revive-zap39`):
-```bash
-git checkout -b rebuild/foundation
-# copy scaffold files that don't exist yet; keep existing assets/ and .git
-rsync -a --exclude node_modules --exclude .git /tmp/lax-rebuild/ ./_rebuild/
+In `package.json` set `"main": "expo-router/entry"` (replacing `"index.js"`). Add the router plugin
+and a scheme to `app.json` under `expo`:
+```json
+"scheme": "laxfaceoff",
+"plugins": ["expo-router", "expo-font", "expo-audio"]
 ```
-Keep the old `src/` and `App.js` in place for now as the porting reference; the new app lives under `app/` once merged. (Resolve the `App.js` vs `app/` + `index.js` entrypoint in Task 4.)
 
-- [ ] **Step 4: Commit the scaffold**
+- [ ] **Step 4: Write `tsconfig.json`**
+
+```json
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": { "strict": true, "paths": { "@/*": ["./*"] } },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+}
+```
+
+- [ ] **Step 5: Create the minimal route shell with testIDs the smoke flow expects**
+
+`app/_layout.tsx`:
+```tsx
+import { Stack } from 'expo-router';
+export default function RootLayout() {
+  return <Stack screenOptions={{ headerShown: false }} />;
+}
+```
+
+`app/(tabs)/_layout.tsx`:
+```tsx
+import { Tabs } from 'expo-router';
+export default function TabsLayout() {
+  return <Tabs screenOptions={{ headerShown: false }} />;
+}
+```
+
+`app/(tabs)/index.tsx` (note the `testID="home-screen"` that `maestro/flows/smoke.yaml` asserts):
+```tsx
+import { View, Text } from 'react-native';
+export default function Home() {
+  return (
+    <View testID="home-screen" style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Lacrosse Face-off Trainer</Text>
+    </View>
+  );
+}
+```
+
+- [ ] **Step 6: Verify it boots on web (fastest check)**
 
 ```bash
-git add -A && git commit -m "chore: scaffold TypeScript Expo Router skeleton"
+npx expo start --web
+```
+Expected: a browser tab shows "Lacrosse Face-off Trainer". Ctrl-C to stop.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add -A && git commit -m "feat: convert to TypeScript + Expo Router skeleton (legacy moved aside)"
 ```
 
 ### Task 2: Install dependencies for the rebuild stack
