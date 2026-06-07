@@ -1,16 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { useAudioEngine } from '../../src/audio/useAudioEngine';
-import { makeRng } from '../../src/practice/random';
-import type { Phase } from '../../src/practice/runner';
-import { PracticeRunner } from '../../src/practice/runner';
-import { buildTimeline } from '../../src/practice/timeline';
-import { useHistoryStore } from '../../src/state/historyStore';
-import { getCurrentConfig, useSettingsStore } from '../../src/state/settingsStore';
-import { Colors } from '../../src/theme/colors';
+import { useAudioEngine } from '../../../src/audio/useAudioEngine';
+import { makeRng } from '../../../src/practice/random';
+import type { Phase } from '../../../src/practice/runner';
+import { PracticeRunner } from '../../../src/practice/runner';
+import { buildTimeline } from '../../../src/practice/timeline';
+import { useHistoryStore } from '../../../src/state/historyStore';
+import { getCurrentConfig, useSettingsStore } from '../../../src/state/settingsStore';
+import { Colors } from '../../../src/theme/colors';
 
 /** Map a runner label to its cue kind. */
 function labelToKind(label: string): 'down' | 'set' | 'whistle' {
@@ -23,6 +24,7 @@ export default function PracticeScreen() {
   const config = useSettingsStore(getCurrentConfig);
   const customSounds = useSettingsStore((s) => s.customSounds);
   const addSession = useHistoryStore((s) => s.addSession);
+  const router = useRouter();
 
   const { engine, ready, resume } = useAudioEngine();
 
@@ -110,6 +112,17 @@ export default function PracticeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        {/* Back button */}
+        <TouchableOpacity
+          testID="session-back-button"
+          style={styles.backButton}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={20} color={Colors.primary} />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Practice Session</Text>
@@ -184,6 +197,17 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    gap: 4,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: Colors.primary,
+    fontWeight: '600',
   },
   header: {
     alignItems: 'center',
