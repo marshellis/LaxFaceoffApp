@@ -12,20 +12,14 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jljackson222.lacrossefaceofftrainer",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ],
+        "UIBackgroundModes": ["audio"],
         "AVAudioSessionCategory": "AVAudioSessionCategoryPlayback",
-        "AVAudioSessionCategoryOptions": [
-          "AVAudioSessionCategoryOptionMixWithOthers"
-        ],
+        "AVAudioSessionCategoryOptions": ["AVAudioSessionCategoryOptionMixWithOthers"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -37,10 +31,7 @@
       "edgeToEdgeEnabled": true,
       "package": "com.jljackson222.lacrossefaceofftrainer",
       "versionCode": 1,
-      "permissions": [
-        "RECORD_AUDIO",
-        "MODIFY_AUDIO_SETTINGS"
-      ]
+      "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -48,16 +39,16 @@
     "updates": {
       "url": "https://u.expo.dev/3655c7ed-55eb-4d91-904b-e1cdb3b9ba54"
     },
-    "runtimeVersion": "1.0.0",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
     "extra": {
       "eas": {
         "projectId": "3655c7ed-55eb-4d91-904b-e1cdb3b9ba54"
       }
     },
     "owner": "jljackson222",
-    "plugins": [
-      "expo-font",
-      "expo-audio"
-    ]
+    "scheme": "laxfaceoff",
+    "plugins": ["expo-router", "expo-font", "expo-audio", "react-native-audio-api"]
   }
 }

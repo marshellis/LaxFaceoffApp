@@ -1,0 +1,21 @@
+# Navigation smoke: every tab renders its screen. Runs on iOS + Android unchanged.
+#   scripts/mobile/run-flows.sh ios maestro/flows/navigation.yaml
+appId: com.jljackson222.lacrossefaceofftrainer
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "home-screen"
+- tapOn:
+    id: "tab-activity"
+- assertVisible:
+    id: "activity-screen"
+- tapOn:
+    id: "tab-settings"
+- assertVisible:
+    id: "settings-screen"
+- tapOn:
+    id: "tab-practice"
+- assertVisible:
+    id: "practice-selection"
+- takeScreenshot: all-tabs-ok

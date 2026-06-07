@@ -1,74 +1,71 @@
 # 🥍 Lacrosse Face-off Trainer
 
-A React Native app to help lacrosse players practice face-off timing and reaction speed with customizable drills and variable timing sequences.
+A cross-platform (iOS + Android, with a web build) app that helps lacrosse players practice
+face-off timing and reaction speed with randomized audio cue sequences. Built with React Native +
+Expo, designed to be contributed to by AI agents **and** a kid just learning to code.
 
-## Features
+## Drills
+- **Down · Set · Whistle** — the traditional face-off sequence with randomized gaps so you can't anticipate.
+- **Rapid Clamp** — repeated whistles for clamp reps.
+- **Three Whistle (Clamp · Pull · Pop)** — a three-cue sequence with a reset pause.
 
-### Practice Types
-- **Down Set Whistle** - Traditional face-off sequence with Down, Set, and Whistle commands
-- **Rapid Clamp** - Continuous whistle sounds for clamping practice
-- **Three Whistle Drill** - Clamp-Pull-Pop sequence with reset pause
+Timing ranges and rep counts are configurable per drill. You can record your own voice/whistle sounds.
 
-### Customization
-- **Variable Timing** - Configurable randomized delays to prevent anticipation
-- **Custom Audio** - Record your own voice commands and whistle sounds
-- **Practice Settings** - Adjust timing ranges and number of reps for each drill type
+## Why the rewrite (the important bit)
+The cue timing now runs on the **hardware audio clock** (`AudioContext.currentTime` via
+`react-native-audio-api`), not JavaScript `setTimeout`. The old app's setTimeout/polling engine drifted
+between debug and release builds — fatal for a reaction-timing tool. The audio **session** is also
+configured with the correct current `expo-audio` / `react-native-audio-api` APIs (the old code passed
+stale `expo-av` keys that were silently ignored), and recording now switches the session to a
+record-capable category and restores loud playback afterward.
 
-## Getting Started
+## Tech stack
+- **Expo SDK 54**, React Native 0.81, React 19, New Architecture
+- **TypeScript** + **Expo Router** (file-based routing)
+- **Zustand** + **react-native-mmkv** (state + persistence)
+- **react-native-audio-api** (clock-accurate audio) + **expo-audio** (recording) + **expo-speech** (Down/Set TTS)
+- **Biome** (lint+format), **Jest** + jest-expo (unit), **Maestro** (on-device E2E), **GitHub Actions** (CI)
 
-### Prerequisites
-- Node.js (LTS version)
-- Expo CLI: `npm install -g @expo/cli`
-- Expo Go app on your mobile device
-
-### Installation
+## Run it
+This app has native modules, so it runs on a **development build** (not Expo Go):
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd LacrosseFaceoffApp
-
-# Install dependencies
 npm install
-
-# Start the development server
-npx expo start
+npx expo run:ios        # iOS simulator
+npx expo run:android    # Android emulator (one-time SDK top-up — see docs/BUILD_AND_TEST.md)
+npx expo start --web    # web preview
 ```
 
-### Running on Device
-1. Install Expo Go on your iOS/Android device
-2. Scan the QR code from the terminal/browser
-3. The app will load on your device
-
-## Usage
-
-1. **Select Practice Type** - Tap "START PRACTICE" and choose your drill
-2. **Customize Settings** - Access settings to adjust timing and audio
-3. **Record Audio** - Create custom voice commands and whistle sounds
-4. **Start Training** - Practice with randomized timing to improve reactions
-
-## Project Structure
-
+## Test it
+```bash
+npm test            # unit tests (pure timing/stats logic)
+npm run typecheck   # tsc
+npm run lint        # Biome
+scripts/mobile/doctor.sh                 # check the iOS/Android test toolchain
+scripts/mobile/run-flows.sh ios          # Maestro UI flows on a simulator/emulator
 ```
+The mobile test harness is fully in-repo (no Claude plugins needed) — see `maestro/README.md` and the
+`mobile-test-setup` / `mobile-test-run` skills. Device build details: `docs/BUILD_AND_TEST.md`.
+
+## Project structure
+```
+app/                 Expo Router screens (a file = a screen)
+  (tabs)/            Home, Practice (selection→session), Activity, Settings (stack)
 src/
-├── components/          # Reusable UI components
-├── contexts/           # Settings and state management
-├── screens/            # App screens
-├── services/           # Audio and business logic
-└── constants/          # Colors and configuration
+  practice/          Pure cue-timing logic (types, rng, timeline, runner) — fully unit-tested
+  audio/             AudioEngine (clock scheduling), session config, useAudioEngine hook
+  state/             Zustand stores + pure helpers (defaults, history stats)
+  storage/           MMKV persistence adapter
+  theme/             Colors
+scripts/mobile/      Vendored Maestro + emulator/simulator harness
+maestro/flows/       Cross-platform UI test flows
+legacy/              The pre-rewrite app — kept ONLY as a porting reference; never imported
+docs/                Rebuild plan + build/test guide
 ```
 
-## Built With
-
-- **React Native** - Mobile app framework
-- **Expo** - Development platform
-- **React Navigation** - Screen navigation
-- **Expo AV** - Audio recording and playback
-- **AsyncStorage** - Settings persistence
+## Contributing
+See **`AGENTS.md`** — conventions for humans and AI agents (TypeScript, small files, thin screens,
+tested pure logic, stable `testID`s, never sequence audio with setTimeout). The implementation plan is
+in `docs/superpowers/plans/`.
 
 ## License
-
-This project is licensed under the MIT License.
-
----
-
-Made with ❤️ for lacrosse players
+MIT. Made with ❤️ for lacrosse players (and one in particular).

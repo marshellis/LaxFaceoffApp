@@ -35,3 +35,12 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+.claude/settings.local.json
+
+# mobile test artifacts (screenshots + view-hierarchy dumps from Maestro runs)
+maestro/artifacts/
+tmp/
+
+# generated native projects (Expo Continuous Native Generation — regenerate with `expo prebuild`)
+/android/
+/ios/

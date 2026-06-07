@@ -1,0 +1,23 @@
+# Smoke test: launch the app and confirm the Home screen renders, then take a screenshot.
+#
+# Selectors use `id:` which matches a React Native `testID` prop — the SAME flow works on
+# both iOS and Android. Add `testID="..."` to the matching components as you build screens.
+#
+# Run it:  scripts/mobile/run-flows.sh ios maestro/flows/smoke.yaml
+#      or: scripts/mobile/run-flows.sh android maestro/flows/smoke.yaml
+appId: com.jljackson222.lacrossefaceofftrainer
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "home-screen"          # add testID="home-screen" to the Home screen root view
+- takeScreenshot: home
+
+# Once the practice flow exists, uncomment to test a full session start:
+# - tapOn:
+#     id: "tab-practice"
+# - tapOn:
+#     id: "start-practice-button"
+# - assertVisible:
+#     id: "practice-running"
+# - takeScreenshot: practice-running
