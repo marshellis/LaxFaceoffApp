@@ -54,8 +54,9 @@ scripts/publish/update.sh production "fix: faster whistle"
 # npm run ota -- --branch production --message "..."
 ```
 This ships instantly to installed apps **on a matching runtime**. `runtimeVersion` uses the
-**`fingerprint` policy** (app.json), so EAS only delivers an update to builds whose native fingerprint
-matches — if you changed native deps, build + submit a new binary instead of OTA.
+**`appVersion` policy** (app.json), so the runtime is the app's `version` and OTA updates only reach
+builds with the same version. **Bump `version` in app.json whenever you change native deps** (then
+build + submit a new binary), so an OTA can't land on an incompatible native build.
 
 ## Typical release flow
 1. `npm test && npm run typecheck && npm run lint` — green.
@@ -68,3 +69,29 @@ matches — if you changed native deps, build + submit a new binary instead of O
   `version`/`versionCode` for production.
 - First-ever store submission of a brand-new app also needs the store listing (name, screenshots,
   privacy) filled in on App Store Connect / Play Console.
+
+## Adding contributors (e.g. a second family member) + CI publishing
+
+**Recommended model for this project: keys live in GitHub, people contribute via PRs.**
+Nobody needs signing keys on their laptop, and a beginner can't accidentally break a release.
+
+1. **CI does the publishing** — `.github/workflows/publish.yml` builds via EAS using a single repo
+   secret `EXPO_TOKEN` (Settings → Secrets and variables → Actions). Create the token at
+   expo.dev → Account settings → Access tokens. Trigger a build from the Actions tab (pick a profile)
+   or by pushing a `v*` tag. Store submission can be added once store creds are configured (see below).
+2. **A new contributor just needs a GitHub account** — add them as a repo collaborator
+   (Settings → Collaborators) or keep `main` protected and have them open PRs from forks. They run the
+   app locally and test, but never touch keys; merging to `main`/tagging triggers the CI publish.
+3. **(Optional) let them run `eas build` from their own machine** — create an Expo **Organization**,
+   move the project under it (Project settings → Transfer), and invite them (Organization → Members)
+   with a role (Viewer / Developer / Admin). They make a free Expo account and accept the invite.
+   Only needed if they want to build/publish from their laptop rather than via CI.
+4. **Store accounts (Apple / Google) are separate and usually NOT needed per-person.** Let CI submit
+   with shared store credentials instead of giving each person store access:
+   - **Apple**: an App Store Connect **API key** (.p8 + Key ID + Issuer ID) — non-interactive, works in
+     CI and for `eas build`/`eas submit`. Generate at App Store Connect → Users and Access →
+     Integrations → App Store Connect API. (Requires the paid Apple Developer Program.)
+   - **Google Play**: a **service-account JSON** key with Play Console access.
+   Store these in EAS (`eas credentials`) or as GitHub secrets the workflow reads. If you *do* want a
+   person to have direct store access, invite them with a scoped role (App Store Connect → Users and
+   Access; Play Console → Users and permissions) — but prefer CI + shared keys for a hobby project.
