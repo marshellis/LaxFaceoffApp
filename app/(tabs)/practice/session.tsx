@@ -25,7 +25,6 @@ export default function PracticeScreen() {
 
   const runnerRef = useRef<PracticeRunner | null>(null);
   const unsubRef = useRef<(() => void) | null>(null);
-  const startTimeRef = useRef<number>(0);
   const runCounterRef = useRef(0);
 
   // Cleanup on unmount
@@ -45,9 +44,7 @@ export default function PracticeScreen() {
 
     runCounterRef.current += 1;
     const seed = Date.now() ^ (config.numberOfReps * 1000 + runCounterRef.current);
-    const cues = buildTimeline(config, makeRng(seed));
-
-    startTimeRef.current = Date.now();
+    const { cues, duration } = buildTimeline(config, makeRng(seed));
 
     if (!engine) return; // engine must be ready — guarded by the `ready` flag on the button
     const runner = new PracticeRunner(engine);
@@ -59,11 +56,11 @@ export default function PracticeScreen() {
       setLabel(state.label);
 
       // All cues (Down / Set / Whistle, plus GO!, CLAMP!, PULL!, POP!) are played
-      // by the engine on the audio clock. The runner's setTimeout drives only the
-      // VISUAL label updates above — never the timing-critical audio.
+      // by the engine on the audio clock, and the runner derives these label
+      // updates from that same clock — so the on-screen word matches the sound.
 
       if (state.phase === 'complete') {
-        const durationSec = Math.round((Date.now() - startTimeRef.current) / 1000);
+        const durationSec = Math.round(duration);
         addSession({
           type: config.type,
           reps: config.numberOfReps,
@@ -74,7 +71,7 @@ export default function PracticeScreen() {
     });
     unsubRef.current = unsub;
 
-    runner.start(cues);
+    runner.start(cues, duration);
   }
 
   function handleStop() {
