@@ -63,9 +63,10 @@ docs/                Rebuild plan + build/test guide
 ```
 
 ## Contributing
-See **`AGENTS.md`** — conventions for humans and AI agents (TypeScript, small files, thin screens,
-tested pure logic, stable `testID`s, never sequence audio with setTimeout). The implementation plan is
-in `docs/superpowers/plans/`.
+See **`CLAUDE.md`** — the canonical project guide: conventions for humans and AI agents
+(TypeScript, small files, thin screens, tested pure logic, stable `testID`s, never sequence audio
+with setTimeout), the architecture, and the layout. (`AGENTS.md` is a stub that points to it so
+non-Claude AI tools find it too.) The implementation plan is in `docs/superpowers/plans/`.
 
 ## License
 MIT. Made with ❤️ for lacrosse players (and one in particular).
