@@ -6,9 +6,10 @@ name: Publish (EAS)
 #   For store submission (optional, when you wire up `eas submit`):
 #   EXPO_APPLE_* / ASC API key, and a Google Play service-account JSON, configured via `eas credentials`.
 #
-# Triggers:
-#   - Manual: Actions tab → "Publish (EAS)" → Run workflow (pick profile + platform).
-#   - Tag push `v*` → a production build (e.g. `git tag v1.0.1 && git push --tags`).
+# Trigger: MANUAL ONLY (Actions tab → "Publish (EAS)" → Run workflow → pick profile + platform).
+# Deliberately no auto-trigger on push/tags — the EAS Free plan includes only ~15 Android + 15 iOS
+# builds/month, so a build must never fire by accident. Add a push/tags trigger later if you move to
+# a paid plan or want release automation.
 on:
   workflow_dispatch:
     inputs:
@@ -22,8 +23,6 @@ on:
         type: choice
         default: all
         options: [android, ios, all]
-  push:
-    tags: ['v*']
 
 jobs:
   build:
