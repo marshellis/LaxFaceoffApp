@@ -52,19 +52,24 @@ Counts as of this writing: 21 `.ts/.tsx` under `src/` (7 colocated `*.test.ts`),
 under `app/`, 4 Maestro flows. Pure logic in `src/practice/` and `src/state/` is unit-tested;
 screens render state and call into `src/` (no business logic in screens).
 
-## Conventions (full list in AGENTS.md — read it before contributing)
+## Conventions (this is the canonical list — `AGENTS.md` points here)
 
 - **TypeScript everywhere**, `strict` on. No `any` without a justifying comment.
-- **Small files**, one responsibility each (aim < 200 lines). Thin screens.
+- **Small files**, one responsibility each (aim < 200 lines). Screens stay thin: they render
+  state and call into `src/` — no business logic in screens.
 - **Pure timing/randomness/timeline logic** lives in `src/practice/` and MUST have unit tests.
+- **Audio rules (learned the hard way):** never sequence cues with `setTimeout` — schedule on
+  `AudioContext.currentTime` through the engine. Always configure the audio session
+  (`src/audio/session.ts`) before playing or recording.
 - **Stable, kebab-case `testID`s** on every element a UI test taps or asserts
   (`home-screen`, `tab-practice`, `start-practice-button`, `practice-running`). Maestro flows
   in `maestro/flows/` depend on them — don't rename casually.
+- **`legacy/` is the old app** — a porting reference only. Never import from it or edit it.
 - Before committing: `npm run typecheck && npm run lint && npm test` must pass. `main` is
   branch-protected; CI must be green to merge. Keep PRs small.
 
-> Note: AGENTS.md lists `src/ui/` as the home for shared components, but that directory does
-> not exist yet — there are no shared UI components today. Create it when the first one lands.
+> Shared UI components would live in `src/ui/`, but that directory does not exist yet — there
+> are none today. Create it when the first one lands.
 
 ## Commands
 
@@ -92,7 +97,8 @@ needs signing keys locally.
 
 ## Key docs
 
-- **`AGENTS.md`** — full contributing conventions (read first).
+- **`AGENTS.md`** — stub that points back here; exists so non-Claude agents (Codex, Cursor,
+  Gemini, etc.) find the conventions too. This file is the source of truth.
 - **`docs/BUILD_AND_TEST.md`** — on-device build + the Android SDK top-up + the audio-parity listen-test.
 - **`docs/PUBLISHING.md`** — EAS build/submit/OTA, CI publishing, adding contributors.
 - **`docs/FOLLOWUPS.md`** — deferred minors (good beginner tasks) + residual setup.
