@@ -1,4 +1,4 @@
-import type { PracticeType } from '../practice/types';
+import type { PracticeType } from '@/src/practice/types';
 import { DEFAULT_CONFIGS, defaultConfigFor } from './defaults';
 
 const PRACTICE_TYPES: PracticeType[] = ['downSetWhistle', 'rapidClamp', 'threeWhistle'];

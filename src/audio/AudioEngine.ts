@@ -1,5 +1,5 @@
 import { type AudioBuffer, AudioContext } from 'react-native-audio-api';
-import type { CueKind, ScheduledCue } from '../practice/types';
+import type { CueKind, ScheduledCue } from '@/src/practice/types';
 
 type Buffers = Partial<Record<CueKind, AudioBuffer>>;
 

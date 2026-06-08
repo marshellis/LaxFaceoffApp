@@ -1,8 +1,8 @@
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { PracticeType } from '../../src/practice/types';
-import { dailySeries, summarizeHistory } from '../../src/state/historyStats';
-import { useHistoryStore } from '../../src/state/historyStore';
-import { Colors } from '../../src/theme/colors';
+import type { PracticeType } from '@/src/practice/types';
+import { dailySeries, summarizeHistory } from '@/src/state/historyStats';
+import { useHistoryStore } from '@/src/state/historyStore';
+import { Colors } from '@/src/theme/colors';
 
 // ─── Human-readable drill names ─────────────────────────────────────────────
 const DRILL_NAMES: Record<PracticeType, string> = {

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { PracticeConfig, PracticeType } from '../practice/types';
-import { createMmkvStorage } from '../storage/mmkv';
+import type { PracticeConfig, PracticeType } from '@/src/practice/types';
+import { createMmkvStorage } from '@/src/storage/mmkv';
 import { DEFAULT_CONFIGS } from './defaults';
 
 export interface CustomSounds {

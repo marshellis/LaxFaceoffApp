@@ -1,4 +1,4 @@
-import type { PracticeConfig, PracticeType } from '../practice/types';
+import type { PracticeConfig, PracticeType } from '@/src/practice/types';
 
 /**
  * Default configurations ported from legacy/src/contexts/SettingsContext.js

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { CueKind } from '../practice/types';
-import { type CustomSounds, useSettingsStore } from '../state/settingsStore';
+import type { CueKind } from '@/src/practice/types';
+import { type CustomSounds, useSettingsStore } from '@/src/state/settingsStore';
 import { AudioEngine } from './AudioEngine';
 import { toArrayBuffer } from './loadAsset';
 import { configurePlaybackSession } from './session';

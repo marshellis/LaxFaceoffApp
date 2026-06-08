@@ -3,14 +3,14 @@ import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { useAudioEngine } from '../../../src/audio/useAudioEngine';
-import { makeRng } from '../../../src/practice/random';
-import type { Phase } from '../../../src/practice/runner';
-import { PracticeRunner } from '../../../src/practice/runner';
-import { buildTimeline } from '../../../src/practice/timeline';
-import { useHistoryStore } from '../../../src/state/historyStore';
-import { getCurrentConfig, useSettingsStore } from '../../../src/state/settingsStore';
-import { Colors } from '../../../src/theme/colors';
+import { useAudioEngine } from '@/src/audio/useAudioEngine';
+import { makeRng } from '@/src/practice/random';
+import type { Phase } from '@/src/practice/runner';
+import { PracticeRunner } from '@/src/practice/runner';
+import { buildTimeline } from '@/src/practice/timeline';
+import { useHistoryStore } from '@/src/state/historyStore';
+import { getCurrentConfig, useSettingsStore } from '@/src/state/settingsStore';
+import { Colors } from '@/src/theme/colors';
 
 export default function PracticeScreen() {
   const config = useSettingsStore(getCurrentConfig);

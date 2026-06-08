@@ -2,9 +2,9 @@ import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { DelayRange, PracticeType } from '../../../src/practice/types';
-import { useSettingsStore } from '../../../src/state/settingsStore';
-import { Colors } from '../../../src/theme/colors';
+import type { DelayRange, PracticeType } from '@/src/practice/types';
+import { useSettingsStore } from '@/src/state/settingsStore';
+import { Colors } from '@/src/theme/colors';
 
 // ── Drill display names (from legacy PRACTICE_TYPE_CONFIGS) ──────────────────
 const DRILL_NAMES: Record<PracticeType, string> = {
