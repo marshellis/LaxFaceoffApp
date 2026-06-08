@@ -4,7 +4,7 @@ import type { PracticeConfig, ScheduledCue } from './types';
 export function buildTimeline(
   cfg: PracticeConfig,
   rng: () => number = Math.random,
-): ScheduledCue[] {
+): { cues: ScheduledCue[]; duration: number } {
   const cues: ScheduledCue[] = [];
   let t = 0;
   const rest = cfg.restBetween ?? { min: 0, max: 0 };
@@ -28,5 +28,19 @@ export function buildTimeline(
     }
     if (rep < cfg.numberOfReps) t += randomDelay(rest, rng);
   }
-  return cues;
+  return { cues, duration: t };
+}
+
+/**
+ * The cue that should be showing at elapsed time `t` (seconds): the latest cue
+ * whose `at <= t`. Returns undefined before the first cue. Pure — drives the UI
+ * label off the same clock the audio plays on. Assumes cues are sorted by `at`.
+ */
+export function cueAt(cues: ScheduledCue[], t: number): ScheduledCue | undefined {
+  let current: ScheduledCue | undefined;
+  for (const cue of cues) {
+    if (cue.at <= t) current = cue;
+    else break;
+  }
+  return current;
 }
