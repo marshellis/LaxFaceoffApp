@@ -1,5 +1,11 @@
 # Lacrosse Face-off Trainer — Clean Rebuild Implementation Plan
 
+> **Status: shipped (PR #1 + #2, 2026-06-08) — historical record, not current-state design.**
+> Phases 1–5 are complete. This plan's "Target file structure" shows a `src/ui/` directory and a
+> top-level `tests/` dir that the shipped code does not use (there are no shared UI components yet,
+> and tests are colocated as `*.test.ts` beside source). Read it for the *why* (root-cause
+> analysis, architecture rationale), not as a map of the current tree. See `CLAUDE.md` for that.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rebuild the Lacrosse Face-off Trainer as a TypeScript + Expo Router app with a sample-accurate, dev/prod-identical audio engine, so it ships reliably to iOS + Android (and web), and stays legible enough for a beginner (a 12-year-old) and AI agents to contribute safely.
