@@ -28,6 +28,9 @@ let loadPromise: Promise<void> | null = null;
 // Bumped whenever buffers finish (re)loading so subscribed hooks re-render.
 let loadVersion = 0;
 let lastLoadedSounds: CustomSounds | null = null;
+// Set when the most recent load failed; cleared on the next success. Lets the UI
+// show a retry affordance instead of a button stuck on "LOADING…" forever.
+let lastError: Error | null = null;
 const readyListeners = new Set<() => void>();
 
 function notifyReady(): void {
@@ -75,10 +78,13 @@ function loadBuffers(force = false): Promise<void> {
 
       await engine.load(sources);
       lastLoadedSounds = sounds;
+      lastError = null;
       notifyReady();
     } catch (err) {
       console.error('[useAudioEngine] Failed to load audio buffers:', err);
-      // Leave ready=false; the app can surface a graceful error state.
+      // Surface a graceful error state so the screen can offer a retry.
+      lastError = err instanceof Error ? err : new Error(String(err));
+      notifyReady();
       throw err;
     } finally {
       loadPromise = null;
@@ -93,9 +99,11 @@ export interface UseAudioEngineResult {
   engine: AudioEngine | null;
   /** True once all cue buffers have been loaded successfully. */
   ready: boolean;
+  /** Set when the most recent load failed (and not yet retried successfully). */
+  error: Error | null;
   /**
-   * Re-loads cue buffers from scratch (e.g. after a custom sound is saved).
-   * Safe to call multiple times; guards against concurrent loads.
+   * Re-loads cue buffers from scratch (e.g. after a custom sound is saved, or to
+   * retry after a failure). Safe to call multiple times; guards against concurrent loads.
    */
   reload: () => Promise<void>;
   /**
@@ -150,5 +158,5 @@ export function useAudioEngine(): UseAudioEngineResult {
 
   const ready = lastLoadedSounds !== null;
 
-  return { engine: sharedEngine, ready, reload, resume };
+  return { engine: sharedEngine, ready, error: lastError, reload, resume };
 }
