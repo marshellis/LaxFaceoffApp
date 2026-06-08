@@ -2,9 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { CustomSounds } from '../../../src/state/settingsStore';
-import { useSettingsStore } from '../../../src/state/settingsStore';
-import { Colors } from '../../../src/theme/colors';
+import type { CustomSounds } from '@/src/state/settingsStore';
+import { useSettingsStore } from '@/src/state/settingsStore';
+import { Colors } from '@/src/theme/colors';
 
 type SoundKind = keyof CustomSounds;
 

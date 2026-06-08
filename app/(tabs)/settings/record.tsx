@@ -11,9 +11,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { configurePlaybackSession, configureRecordingSession } from '../../../src/audio/session';
-import { useSettingsStore } from '../../../src/state/settingsStore';
-import { Colors } from '../../../src/theme/colors';
+import { configurePlaybackSession, configureRecordingSession } from '@/src/audio/session';
+import { useSettingsStore } from '@/src/state/settingsStore';
+import { Colors } from '@/src/theme/colors';
 
 type SoundKind = 'down' | 'set' | 'whistle';
 

@@ -3,21 +3,21 @@ import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { useAudioEngine } from '../../../src/audio/useAudioEngine';
-import { makeRng } from '../../../src/practice/random';
-import type { Phase } from '../../../src/practice/runner';
-import { PracticeRunner } from '../../../src/practice/runner';
-import { buildTimeline } from '../../../src/practice/timeline';
-import { useHistoryStore } from '../../../src/state/historyStore';
-import { getCurrentConfig, useSettingsStore } from '../../../src/state/settingsStore';
-import { Colors } from '../../../src/theme/colors';
+import { useAudioEngine } from '@/src/audio/useAudioEngine';
+import { makeRng } from '@/src/practice/random';
+import type { Phase } from '@/src/practice/runner';
+import { PracticeRunner } from '@/src/practice/runner';
+import { buildTimeline } from '@/src/practice/timeline';
+import { useHistoryStore } from '@/src/state/historyStore';
+import { getCurrentConfig, useSettingsStore } from '@/src/state/settingsStore';
+import { Colors } from '@/src/theme/colors';
 
 export default function PracticeScreen() {
   const config = useSettingsStore(getCurrentConfig);
   const addSession = useHistoryStore((s) => s.addSession);
   const router = useRouter();
 
-  const { engine, ready, resume } = useAudioEngine();
+  const { engine, ready, error, reload, resume } = useAudioEngine();
 
   const [phase, setPhase] = useState<Phase>('ready');
   const [rep, setRep] = useState(0);
@@ -113,22 +113,41 @@ export default function PracticeScreen() {
         {/* Main action area */}
         <View style={styles.actionArea}>
           {/* READY state */}
-          {phase === 'ready' && (
-            <View style={styles.centeredBlock}>
-              <Text style={styles.readyText}>
-                {config.numberOfReps} rep{config.numberOfReps !== 1 ? 's' : ''} ready
-              </Text>
+          {phase === 'ready' && error && !ready ? (
+            // Audio failed to load — offer a retry instead of a stuck button.
+            <View testID="audio-error" style={styles.centeredBlock}>
+              <Ionicons name="alert-circle" size={64} color={Colors.error} />
+              <Text style={styles.errorText}>Couldn't load the sounds.</Text>
               <TouchableOpacity
-                testID="start-practice-button"
-                style={[styles.startButton, !ready && styles.disabledButton]}
-                onPress={handleStart}
+                testID="retry-audio-button"
+                style={styles.startButton}
+                onPress={() => {
+                  void reload();
+                }}
                 activeOpacity={0.8}
-                disabled={!ready}
               >
-                <Ionicons name="play" size={40} color={Colors.textLight} />
-                <Text style={styles.startButtonText}>{ready ? 'START' : 'LOADING…'}</Text>
+                <Ionicons name="refresh" size={28} color={Colors.textLight} />
+                <Text style={styles.startButtonText}>Tap to retry</Text>
               </TouchableOpacity>
             </View>
+          ) : (
+            phase === 'ready' && (
+              <View style={styles.centeredBlock}>
+                <Text style={styles.readyText}>
+                  {config.numberOfReps} rep{config.numberOfReps !== 1 ? 's' : ''} ready
+                </Text>
+                <TouchableOpacity
+                  testID="start-practice-button"
+                  style={[styles.startButton, !ready && styles.disabledButton]}
+                  onPress={handleStart}
+                  activeOpacity={0.8}
+                  disabled={!ready}
+                >
+                  <Ionicons name="play" size={40} color={Colors.textLight} />
+                  <Text style={styles.startButtonText}>{ready ? 'START' : 'LOADING…'}</Text>
+                </TouchableOpacity>
+              </View>
+            )
           )}
 
           {/* RUNNING state */}
@@ -218,6 +237,11 @@ const styles = StyleSheet.create({
   readyText: {
     fontSize: 18,
     color: Colors.textSecondary,
+    textAlign: 'center',
+  },
+  errorText: {
+    fontSize: 18,
+    color: Colors.error,
     textAlign: 'center',
   },
   startButton: {

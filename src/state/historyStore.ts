@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createMmkvStorage } from '../storage/mmkv';
+import { createMmkvStorage } from '@/src/storage/mmkv';
 import type { PracticeSession } from './historyStats';
 
 export interface HistoryState {

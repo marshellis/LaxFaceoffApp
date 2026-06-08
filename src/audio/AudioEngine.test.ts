@@ -3,7 +3,7 @@ jest.mock('react-native-audio-api', () => ({
   AudioManager: { setAudioSessionOptions: jest.fn(), setAudioSessionActivity: jest.fn() },
 }));
 
-import type { ScheduledCue } from '../practice/types';
+import type { ScheduledCue } from '@/src/practice/types';
 import { AudioEngine } from './AudioEngine';
 
 function mockContext() {

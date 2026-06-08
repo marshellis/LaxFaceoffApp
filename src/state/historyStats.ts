@@ -1,4 +1,4 @@
-import type { PracticeType } from '../practice/types';
+import type { PracticeType } from '@/src/practice/types';
 
 export interface PracticeSession {
   type: PracticeType;

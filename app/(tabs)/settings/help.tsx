@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Colors } from '../../../src/theme/colors';
+import { Colors } from '@/src/theme/colors';
 
 function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
