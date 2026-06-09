@@ -1,10 +1,10 @@
 name: Publish (EAS)
 
-# Cloud build/submit from CI so nobody needs signing keys on their laptop.
-# Keys live as GitHub repo secrets:
-#   EXPO_TOKEN            (required) — Expo access token (expo.dev → Account settings → Access tokens)
-#   For store submission (optional, when you wire up `eas submit`):
-#   EXPO_APPLE_* / ASC API key, and a Google Play service-account JSON, configured via `eas credentials`.
+# Cloud build (+ optional store submit) from CI so nobody needs signing keys on their laptop.
+# Required GitHub secret: EXPO_TOKEN (expo.dev → Account settings → Access tokens).
+# iOS signing + TestFlight submission use the Apple Distribution cert + App Store Connect API key
+# already stored on EAS servers — no extra secret needed. (Android Play submission, when you want it,
+# needs a Google Play service-account JSON added once via `eas credentials`.)
 #
 # Trigger: MANUAL ONLY (Actions tab → "Publish (EAS)" → Run workflow → pick profile + platform).
 # Deliberately no auto-trigger on push/tags — the EAS Free plan includes only ~15 Android + 15 iOS
@@ -23,6 +23,10 @@ on:
         type: choice
         default: all
         options: [android, ios, all]
+      auto_submit:
+        description: "Also submit to TestFlight / Play after building (use with profile=production)"
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -42,12 +46,13 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: EAS build
+      - name: EAS build (+ optional submit)
         env:
-          PROFILE: ${{ github.event.inputs.profile || 'production' }}
-          PLATFORM: ${{ github.event.inputs.platform || 'all' }}
-        run: eas build --profile "$PROFILE" --platform "$PLATFORM" --non-interactive --no-wait
-      # To auto-submit production to the stores, add (after configuring store creds via `eas credentials`):
-      #   - name: EAS submit
-      #     if: startsWith(github.ref, 'refs/tags/v')
-      #     run: eas submit --profile production --platform all --non-interactive
+          PROFILE: ${{ inputs.profile }}
+          PLATFORM: ${{ inputs.platform }}
+          AUTO_SUBMIT: ${{ inputs.auto_submit }}
+        run: |
+          ARGS="--profile $PROFILE --platform $PLATFORM --non-interactive --no-wait"
+          if [ "$AUTO_SUBMIT" = "true" ]; then ARGS="$ARGS --auto-submit"; fi
+          echo "Running: eas build $ARGS"
+          eas build $ARGS
