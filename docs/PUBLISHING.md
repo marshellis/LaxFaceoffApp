@@ -78,9 +78,10 @@ Nobody needs signing keys on their laptop, and a beginner can't accidentally bre
 1. **CI does the publishing** — `.github/workflows/publish.yml` builds via EAS using a single repo
    secret `EXPO_TOKEN` (Settings → Secrets and variables → Actions). Create the token at
    expo.dev → Account settings → Access tokens. The workflow is **manual-only**: trigger a build from
-   the Actions tab (pick a profile + platform). It deliberately does NOT auto-build on push/tags,
-   because the EAS Free plan caps you at ~15 Android + 15 iOS builds/month. Store submission can be
-   added once store creds are configured (see below).
+   the Actions tab (pick a profile + platform, and optionally **`auto_submit`**). It deliberately does
+   NOT auto-build on push/tags, because the EAS Free plan caps you at ~15 Android + 15 iOS builds/month.
+   To ship to **TestFlight**, run it with `profile=production`, `platform=ios`, `auto_submit=true` — the
+   iOS signing cert + App Store Connect API key are already stored on EAS, so it submits hands-free.
 2. **A new contributor just needs a GitHub account** — add them as a repo collaborator
    (Settings → Collaborators) or keep `main` protected and have them open PRs from forks. They run the
    app locally and test, but never touch keys; a maintainer runs the manual publish workflow to ship.
