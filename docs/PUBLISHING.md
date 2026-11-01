@@ -14,11 +14,12 @@ scripts/publish/doctor.sh
 ```
 
 ## One-time setup
-1. **Log in to Expo** (this is the step I can't do for you — it's interactive):
-   ```bash
-   npx eas-cli login        # account owner is "jljackson222" (matches app.json)
-   ```
-   For CI, set `EXPO_TOKEN` instead (Expo dashboard → Access Tokens).
+1. **Expo account:** the project belongs to the `marshellis` Expo organization (`owner` in app.json).
+   To build from a laptop, sign in to eas-cli as a member of that org. CI uses the **org-level**
+   GitHub secret `EXPO_TOKEN` (a `marshellis` robot token), shared by every public marshellis repo.
+   Apple: team **Marshellis LLC (`6GY92LKY29`)**. Signing assets and the App Store Connect submit key
+   are stored on EAS. The bundle id keeps its original `com.jljackson222.*` name, because an App
+   Store app's bundle id can never change.
 2. The project is already linked: `app.json` has `extra.eas.projectId` + `owner`, and `updates.url`.
 
 ## Build profiles (`eas.json`)

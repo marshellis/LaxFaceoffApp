@@ -46,7 +46,7 @@
         "projectId": "3655c7ed-55eb-4d91-904b-e1cdb3b9ba54"
       }
     },
-    "owner": "jljackson222",
+    "owner": "marshellis",
     "scheme": "laxfaceoff",
     "plugins": ["expo-router", "expo-font", "expo-audio", "react-native-audio-api"]
   }
