@@ -10,7 +10,7 @@ appId: com.jljackson222.lacrossefaceofftrainer
 - launchApp:
     clearState: true
 - assertVisible:
-    id: "home-screen"          # add testID="home-screen" to the Home screen root view
+    id: "home-screen" # add testID="home-screen" to the Home screen root view
 - takeScreenshot: home
 
 # Once the practice flow exists, uncomment to test a full session start:
