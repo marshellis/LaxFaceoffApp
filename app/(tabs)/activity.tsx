@@ -1,4 +1,5 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { PracticeType } from '@/src/practice/types';
 import { dailySeries, summarizeHistory } from '@/src/state/historyStats';
 import { useHistoryStore } from '@/src/state/historyStore';
@@ -84,7 +85,7 @@ export default function ActivityScreen() {
 
   if (sessions.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <View testID="activity-screen" style={styles.emptyContainer}>
           <Text style={styles.screenTitle}>Activity</Text>
           <View testID="activity-empty" style={styles.emptyState}>
@@ -98,7 +99,7 @@ export default function ActivityScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ScrollView
         testID="activity-screen"
         style={styles.scroll}

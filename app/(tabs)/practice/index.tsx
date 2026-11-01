@@ -1,6 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { useRouter } from 'expo-router';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { PracticeType } from '@/src/practice/types';
 import { useSettingsStore } from '@/src/state/settingsStore';
@@ -47,7 +48,7 @@ export default function PracticeSelectionScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View testID="practice-selection" style={styles.content}>
         {/* Header */}
         <View style={styles.header}>

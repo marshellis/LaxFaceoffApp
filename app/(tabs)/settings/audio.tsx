@@ -1,7 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { useRouter } from 'expo-router';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { deleteCustomSound } from '@/src/audio/customSoundFiles';
 import type { CustomSounds } from '@/src/state/settingsStore';
 import { useSettingsStore } from '@/src/state/settingsStore';
 import { Colors } from '@/src/theme/colors';
@@ -20,7 +22,7 @@ export default function AudioScreen() {
   const setCustomSound = useSettingsStore((s) => s.setCustomSound);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ScrollView style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
@@ -69,7 +71,11 @@ export default function AudioScreen() {
                     <Pressable
                       testID={`audio-${kind}-reset`}
                       style={styles.resetButton}
-                      onPress={() => setCustomSound(kind, undefined)}
+                      onPress={() => {
+                        const previous = customSounds[kind];
+                        setCustomSound(kind, undefined);
+                        deleteCustomSound(previous);
+                      }}
                     >
                       <Text style={styles.resetButtonText}>Reset</Text>
                     </Pressable>

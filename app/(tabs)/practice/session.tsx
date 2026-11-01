@@ -1,7 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppState, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAudioEngine } from '@/src/audio/useAudioEngine';
 import { makeRng } from '@/src/practice/random';
@@ -11,6 +13,8 @@ import { buildTimeline } from '@/src/practice/timeline';
 import { useHistoryStore } from '@/src/state/historyStore';
 import { getCurrentConfig, useSettingsStore } from '@/src/state/settingsStore';
 import { Colors } from '@/src/theme/colors';
+
+const KEEP_AWAKE_TAG = 'practice-session';
 
 export default function PracticeScreen() {
   const config = useSettingsStore(getCurrentConfig);
@@ -34,6 +38,21 @@ export default function PracticeScreen() {
       runnerRef.current?.stop();
     };
   }, []);
+
+  // While a session runs: keep the screen awake, and stop cleanly if the app is backgrounded.
+  // Otherwise auto-lock suspends the audio clock, and on return the runner sees the elapsed
+  // time and records a "complete" session whose cues never played.
+  useEffect(() => {
+    if (phase !== 'running') return;
+    void activateKeepAwakeAsync(KEEP_AWAKE_TAG);
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next === 'background') runnerRef.current?.stop();
+    });
+    return () => {
+      sub.remove();
+      void deactivateKeepAwake(KEEP_AWAKE_TAG);
+    };
+  }, [phase]);
 
   async function handleStart() {
     // Tear down any previous runner
@@ -91,7 +110,7 @@ export default function PracticeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.content}>
         {/* Back button */}
         <TouchableOpacity

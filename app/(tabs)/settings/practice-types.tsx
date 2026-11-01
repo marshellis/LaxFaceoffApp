@@ -1,6 +1,7 @@
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { DelayRange, PracticeType } from '@/src/practice/types';
 import { useSettingsStore } from '@/src/state/settingsStore';
@@ -119,7 +120,7 @@ export default function PracticeTypesScreen() {
   const threeWhistle = configs.threeWhistle;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ScrollView style={styles.content}>
         {/* Header */}
         <View style={styles.header}>

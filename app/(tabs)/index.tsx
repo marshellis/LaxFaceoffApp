@@ -1,6 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { useRouter } from 'expo-router';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '@/src/theme/colors';
 
@@ -8,7 +9,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View testID="home-screen" style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
