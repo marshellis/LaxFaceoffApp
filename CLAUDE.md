@@ -5,10 +5,9 @@ timing with randomized audio cue sequences. Built to be contributed to by AI age
 beginner (a 12-year-old learning to code), so legibility and small files matter as much as
 correctness.
 
-**Status:** Clean TypeScript rebuild shipped — PR #1 (rebuild) and PR #2 (native publishing
-pipeline) are merged to `main`. No open issues or PRs. The old app survives only as
-`legacy/` (porting reference; never imported or edited). Phases 1–5 of the rebuild are
-complete and code-review-clean; deferred minors are tracked in `docs/FOLLOWUPS.md`.
+**Status:** Clean TypeScript rebuild (June 2026), upgraded to **Expo SDK 58 / React Native 0.88**
+(Nov 2026). The pre-rewrite app was deleted once the port was complete (it lives in git
+history). Deferred minors are tracked in `docs/FOLLOWUPS.md`. Node **22.13+** (`.nvmrc`).
 
 ## The core architecture decision (why this rebuild exists)
 
@@ -27,7 +26,7 @@ stale `expo-av` keys that `expo-audio` silently ignored. The rebuild fixes both:
 
 **The one rule that must never be broken: never sequence cues with `setTimeout`.** Always go
 through the engine so timing stays on the audio clock. (`PracticeRunner` in
-`src/practice/runner.ts` does use timers — but only to emit UI *state* like rep counters, never
+`src/practice/runner.ts` does use timers — but only to emit UI _state_ like rep counters, never
 to fire audio.)
 
 ## Layout (verified paths)
@@ -44,7 +43,6 @@ src/
 scripts/mobile/          Vendored Maestro + simulator/emulator harness (no Claude plugins needed)
 scripts/publish/         EAS build / submit / update / doctor wrappers
 maestro/flows/           Cross-platform UI test flows (selectors are React Native testIDs)
-legacy/                  Pre-rewrite app — porting reference ONLY; never import or edit it
 docs/                    Rebuild plan, build/test guide, publishing guide, follow-ups
 ```
 
@@ -64,7 +62,14 @@ screens render state and call into `src/` (no business logic in screens).
 - **Stable, kebab-case `testID`s** on every element a UI test taps or asserts
   (`home-screen`, `tab-practice`, `start-practice-button`, `practice-running`). Maestro flows
   in `maestro/flows/` depend on them — don't rename casually.
-- **`legacy/` is the old app** — a porting reference only. Never import from it or edit it.
+- **Custom recordings are stored by file NAME** in documents (`src/audio/customSoundFiles.ts`),
+  never by absolute path: the recorder writes to the purgeable cache, and the app-container path
+  changes on every app update.
+- **A running practice session keeps the screen awake and stops if the app is backgrounded**
+  (`app/(tabs)/practice/session.tsx`); otherwise a locked phone records a session that never played.
+- **Safe areas come from `react-native-safe-area-context`**, not React Native's iOS-only
+  `SafeAreaView` (Android is always edge-to-edge). Screens have no headers, so they take
+  `edges={['top', 'left', 'right']}` and the tab bar owns the bottom.
 - Before committing: `npm run typecheck && npm run lint && npm test` must pass. `main` is
   branch-protected; CI must be green to merge. Keep PRs small.
 

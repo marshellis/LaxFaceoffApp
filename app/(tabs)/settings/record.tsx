@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, type IoniconsIconName } from '@react-native-vector-icons/ionicons';
 import {
   AudioModule,
   type AudioPlayer,
@@ -9,8 +9,10 @@ import {
 } from 'expo-audio';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { deleteCustomSound, persistRecording } from '@/src/audio/customSoundFiles';
 import { configurePlaybackSession, configureRecordingSession } from '@/src/audio/session';
 import { useSettingsStore } from '@/src/state/settingsStore';
 import { Colors } from '@/src/theme/colors';
@@ -121,10 +123,21 @@ export default function RecordScreen() {
   }
 
   // --- Save ---
-  function handleSave() {
+  async function handleSave() {
     if (!recordingUri) return;
-    setCustomSound(kind, recordingUri);
-    router.back();
+    try {
+      // Native: move the take out of the purgeable cache and store only its file name.
+      // Web: expo-audio gives a blob: URL with no file system behind it; keep it as-is.
+      const stored =
+        Platform.OS === 'web' ? recordingUri : await persistRecording(kind, recordingUri);
+      const previous = useSettingsStore.getState().customSounds[kind];
+      setCustomSound(kind, stored);
+      if (previous && previous !== stored) deleteCustomSound(previous);
+      router.back();
+    } catch (err) {
+      console.error('Failed to save recording:', err);
+      Alert.alert('Save Error', 'Could not save the recording. Please try again.');
+    }
   }
 
   // --- Discard ---
@@ -146,7 +159,7 @@ export default function RecordScreen() {
     return styles.recordButton;
   }
 
-  function getRecordIcon(): keyof typeof Ionicons.glyphMap {
+  function getRecordIcon(): IoniconsIconName {
     if (isRecording) return 'stop';
     if (hasRecording) return 'checkmark';
     return 'mic';
@@ -162,7 +175,11 @@ export default function RecordScreen() {
   // --- Permission denied screen ---
   if (hasPermission === false) {
     return (
-      <SafeAreaView style={styles.container} testID="record-screen">
+      <SafeAreaView
+        style={styles.container}
+        edges={['top', 'left', 'right']}
+        testID="record-screen"
+      >
         <View style={styles.permissionContainer}>
           <Ionicons name="mic-off-outline" size={64} color={Colors.textSecondary} />
           <Text style={styles.permissionTitle}>Microphone Access Required</Text>
@@ -182,7 +199,7 @@ export default function RecordScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} testID="record-screen">
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']} testID="record-screen">
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>

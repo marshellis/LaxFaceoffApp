@@ -2,24 +2,15 @@
   "expo": {
     "name": "Lacrosse Faceoff Trainer",
     "slug": "lacrosse-faceoff-trainer",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jljackson222.lacrossefaceofftrainer",
       "infoPlist": {
         "UIBackgroundModes": ["audio"],
-        "AVAudioSessionCategory": "AVAudioSessionCategoryPlayback",
-        "AVAudioSessionCategoryOptions": ["AVAudioSessionCategoryOptionMixWithOthers"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -28,7 +19,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.jljackson222.lacrossefaceofftrainer",
       "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"]
     },
@@ -48,6 +38,28 @@
     },
     "owner": "marshellis",
     "scheme": "laxfaceoff",
-    "plugins": ["expo-router", "expo-font", "expo-audio", "react-native-audio-api"]
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "@react-native-vector-icons/ionicons",
+      "react-native-audio-api",
+      "expo-status-bar",
+      "expo-asset",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Lacrosse Faceoff Trainer uses the microphone only when you record your own custom whistle or call cues."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ]
   }
 }

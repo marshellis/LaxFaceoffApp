@@ -5,6 +5,7 @@ face-off timing and reaction speed with randomized audio cue sequences. Built wi
 Expo, designed to be contributed to by AI agents **and** a kid just learning to code.
 
 ## Drills
+
 - **Down · Set · Whistle** — the traditional face-off sequence with randomized gaps so you can't anticipate.
 - **Rapid Clamp** — repeated whistles for clamp reps.
 - **Three Whistle (Clamp · Pull · Pop)** — a three-cue sequence with a reset pause.
@@ -12,6 +13,7 @@ Expo, designed to be contributed to by AI agents **and** a kid just learning to 
 Timing ranges and rep counts are configurable per drill. You can record your own voice/whistle sounds.
 
 ## Why the rewrite (the important bit)
+
 The cue timing now runs on the **hardware audio clock** (`AudioContext.currentTime` via
 `react-native-audio-api`), not JavaScript `setTimeout`. The old app's setTimeout/polling engine drifted
 between debug and release builds — fatal for a reaction-timing tool. The audio **session** is also
@@ -20,13 +22,15 @@ stale `expo-av` keys that were silently ignored), and recording now switches the
 record-capable category and restores loud playback afterward.
 
 ## Tech stack
-- **Expo SDK 54**, React Native 0.81, React 19, New Architecture
+
+- **Expo SDK 58**, React Native 0.88, React 19.3 (New Architecture is the only architecture). Node 22.13+
 - **TypeScript** + **Expo Router** (file-based routing)
 - **Zustand** + **react-native-mmkv** (state + persistence)
 - **react-native-audio-api** (clock-accurate audio) + **expo-audio** (recording) + **expo-speech** (Down/Set TTS)
 - **Biome** (lint+format), **Jest** + jest-expo (unit), **Maestro** (on-device E2E), **GitHub Actions** (CI)
 
 ## Run it
+
 This app has native modules, so it runs on a **development build** (not Expo Go):
 ```bash
 npm install
@@ -36,6 +40,7 @@ npx expo start --web    # web preview
 ```
 
 ## Test it
+
 ```bash
 npm test            # unit tests (pure timing/stats logic)
 npm run typecheck   # tsc
@@ -47,6 +52,7 @@ The mobile test harness is fully in-repo (no Claude plugins needed) — see `mae
 `mobile-test-setup` / `mobile-test-run` skills. Device build details: `docs/BUILD_AND_TEST.md`.
 
 ## Project structure
+
 ```
 app/                 Expo Router screens (a file = a screen)
   (tabs)/            Home, Practice (selection→session), Activity, Settings (stack)
@@ -58,15 +64,16 @@ src/
   theme/             Colors
 scripts/mobile/      Vendored Maestro + emulator/simulator harness
 maestro/flows/       Cross-platform UI test flows
-legacy/              The pre-rewrite app — kept ONLY as a porting reference; never imported
 docs/                Rebuild plan + build/test guide
 ```
 
 ## Contributing
+
 See **`CLAUDE.md`** — the canonical project guide: conventions for humans and AI agents
 (TypeScript, small files, thin screens, tested pure logic, stable `testID`s, never sequence audio
 with setTimeout), the architecture, and the layout. (`AGENTS.md` is a stub that points to it so
 non-Claude AI tools find it too.) The implementation plan is in `docs/superpowers/plans/`.
 
 ## License
+
 MIT. Made with ❤️ for lacrosse players (and one in particular).
