@@ -27,9 +27,10 @@ if ! command -v maestro >/dev/null 2>&1; then
   exit 1
 fi
 
+# The two platforms have different app ids (the iOS one can never change); flows read ${APP_ID}.
 case "$PLATFORM" in
-  ios)     "$SCRIPT_DIR/boot-ios.sh" ;;
-  android) "$SCRIPT_DIR/boot-android.sh" ;;
+  ios)     "$SCRIPT_DIR/boot-ios.sh"; APP_ID="com.jljackson222.lacrossefaceofftrainer" ;;
+  android) "$SCRIPT_DIR/boot-android.sh"; APP_ID="com.marshellis.laxfaceoff" ;;
   *)       echo "❌ platform must be 'ios' or 'android'"; exit 1 ;;
 esac
 
@@ -43,7 +44,7 @@ echo "    Debug output (screenshots + view hierarchy): $OUT"
 # this is our "failure forensics": on a failed assertion, read the last screenshot and
 # the *.json hierarchy in $OUT to see exactly which screen/selector was wrong.
 set +e
-maestro test --debug-output "$OUT" "$FLOW"
+maestro test -e APP_ID="$APP_ID" --debug-output "$OUT" "$FLOW"
 status=$?
 set -e
 

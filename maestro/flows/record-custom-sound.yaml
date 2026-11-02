@@ -1,7 +1,7 @@
 # Navigate to the custom-sound recorder. (Actually recording audio needs a mic + human ears,
 # so this flow verifies the path reaches the recorder; do the record/preview/save by hand.)
 #   scripts/mobile/run-flows.sh ios maestro/flows/record-custom-sound.yaml
-appId: com.jljackson222.lacrossefaceofftrainer
+appId: ${APP_ID}
 ---
 - launchApp:
     clearState: true
