@@ -1,6 +1,6 @@
 # Navigation smoke: every tab renders its screen. Runs on iOS + Android unchanged.
 #   scripts/mobile/run-flows.sh ios maestro/flows/navigation.yaml
-appId: com.jljackson222.lacrossefaceofftrainer
+appId: ${APP_ID}
 ---
 - launchApp:
     clearState: true

@@ -34,7 +34,7 @@ reference it as `id: "start-practice-button"` in the flow. Copy `maestro/flows/s
 template. Full conventions: `maestro/README.md`.
 
 ```yaml
-appId: com.jljackson222.lacrossefaceofftrainer
+appId: ${APP_ID}  # set per platform by scripts/mobile/run-flows.sh
 ---
 - launchApp: { clearState: true }
 - tapOn: { id: "tab-practice" }
